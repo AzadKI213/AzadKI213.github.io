@@ -1,0 +1,92 @@
+---
+import '../../styles/global.css';
+
+const PAGE_SIZE = 12;
+const showDrafts = Astro.request.url.includes('drafts=1');
+
+const all = await Astro.glob('../../content/blog/**/*.md');
+const posts = all
+  .filter(p => showDrafts ? true : p.frontmatter?.draft !== true)
+  .sort((a,b) => new Date(b.frontmatter.date) - new Date(a.frontmatter.date));
+
+export async function getStaticPaths() {
+  const total = posts.length;
+  const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  return Array.from({ length: pages }, (_, i) => ({
+    params: { page: String(i + 1) },
+    props: { page: i + 1, pages, total }
+  })).map((p, idx) => {
+    return idx === 0 ? { params: {}, props: p.props } : p;
+  });
+}
+
+const current = Astro.props.page || 1;
+const totalPages = Astro.props.pages;
+const start = (current - 1) * PAGE_SIZE;
+const pagePosts = posts.slice(start, start + PAGE_SIZE);
+
+const base = Astro.site?.pathname || '/';
+const link = (p) => `${base}${p}`.replace('//','/');
+const pageUrl = (n) => n === 1 ? link('blog/') : link(`blog/${n}`);
+---
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Blog · The Ascension</title>
+  <meta name="description" content="All posts" />
+  <link rel="icon" href={link('favicon.svg')} />
+  <link rel="stylesheet" href={link('src/styles/global.css')} />
+  <meta property="og:title" content="Blog · The Ascension" />
+  <meta property="og:description" content="All posts" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content={new URL(Astro.request.url, Astro.site ?? 'http://localhost/').toString()} />
+</head>
+<body>
+  <div class="container">
+    <nav class="nav">
+      <a class="brand" href={link('')}>
+        <svg viewBox="0 0 64 64" aria-hidden="true">
+          <defs><linearGradient id="lg" x1="0" x2="1"><stop stop-color="#86b6ff"/><stop offset="1" stop-color="#d5b3ff"/></linearGradient></defs>
+          <path d="M8 40 L32 12 L56 40" fill="none" stroke="url(#lg)" stroke-width="3"/>
+          <path d="M20 40 L32 26 L44 40" fill="none" stroke="url(#lg)" stroke-width="3"/>
+        </svg>
+        <span>THE ASCENSION</span>
+      </a>
+      <div class="menu">
+        <a class="chip" href={link('#home')}>Home</a>
+        <a class="chip" href={link('blog/')}>Blog</a>
+        <a class="chip" href={link('#about')}>About</a>
+      </div>
+    </nav>
+
+    <section class="card">
+      <h2>All Posts</h2>
+      <ul class="recent" aria-label="All posts">
+        {pagePosts.map((p) => {
+          const slug = p.file.split('/').pop().replace(/\.md$/, '');
+          const url = link(`blog/${slug}/`);
+          return (
+            <li>
+              <a class="title" href={url}>{p.frontmatter.title}</a>
+              <span class="meta">
+                {new Date(p.frontmatter.date).toLocaleDateString('en-US', {year:'numeric', month:'short', day:'2-digit'})}
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+
+      <div class="cta" style="margin-top:16px;justify-content:space-between">
+        <span class="meta">Page {current} / {totalPages}</span>
+        <div class="cta">
+          {current > 1 && <a class="btn" href={pageUrl(current - 1)}>← Prev</a>}
+          {current < totalPages && <a class="btn" href={pageUrl(current + 1)}>Next →</a>}
+        </div>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

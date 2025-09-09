@@ -1,0 +1,28 @@
+---
+import '../styles/global.css';
+Astro.response.status = 404;
+const base = Astro.site?.pathname || '/';
+const link = (p) => `${base}${p}`.replace('//','/');
+---
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>404 · The Ascension</title>
+  <link rel="icon" href={link('favicon.svg')} />
+  <link rel="stylesheet" href={link('src/styles/global.css')} />
+</head>
+<body>
+  <div class="container">
+    <section class="card">
+      <h2>404 — Lost in the clouds</h2>
+      <p class="meta">The page you seek is elsewhere.</p>
+      <div class="cta" style="margin-top:10px">
+        <a class="btn" href={link('')}>Back Home</a>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

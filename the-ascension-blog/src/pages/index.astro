@@ -1,0 +1,128 @@
+---
+import '../styles/global.css';
+
+// 加载所有文章（不依赖 content collections）
+const all = await Astro.glob('../content/blog/**/*.md');
+
+// 过滤草稿：默认不显示；开发时允许 ?drafts=1
+const showDrafts = Astro.request.url.includes('drafts=1');
+const posts = all
+  .filter(p => showDrafts ? true : p.frontmatter?.draft !== true)
+  .sort((a,b) => new Date(b.frontmatter.date) - new Date(a.frontmatter.date));
+
+const recent = posts.slice(0,5);
+
+// 站点信息
+const SITE_TITLE = 'The Ascension';
+const SITE_DESC = 'A journey through technology, consciousness, and the cosmic dance.';
+const AUTHOR_NAME = 'Kyrie';
+const AUTHOR_BIO = 'AI 产品经理 / Context Engineering 爱好者';
+
+const base = Astro.site?.pathname || '/';
+const assets = (p) => `${base}${p}`.replace('//','/');
+---
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>{SITE_TITLE}</title>
+  <meta name="description" content={SITE_DESC} />
+  <link rel="icon" href={assets('favicon.svg')} />
+  <link rel="stylesheet" href={assets('src/styles/global.css')} />
+  <!-- OG -->
+  <meta property="og:title" content={SITE_TITLE} />
+  <meta property="og:description" content={SITE_DESC} />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content={new URL(Astro.request.url, Astro.site ?? 'http://localhost/').toString()} />
+</head>
+<body>
+  <div class="container">
+    <nav class="nav" aria-label="Primary">
+      <a class="brand" href={assets('')}>
+        <svg viewBox="0 0 64 64" aria-hidden="true">
+          <defs><linearGradient id="lg" x1="0" x2="1"><stop stop-color="#86b6ff"/><stop offset="1" stop-color="#d5b3ff"/></linearGradient></defs>
+          <path d="M8 40 L32 12 L56 40" fill="none" stroke="url(#lg)" stroke-width="3"/>
+          <path d="M20 40 L32 26 L44 40" fill="none" stroke="url(#lg)" stroke-width="3"/>
+        </svg>
+        <span>THE ASCENSION</span>
+      </a>
+      <div class="menu">
+        <a class="chip" href="#home">Home</a>
+        <a class="chip" href={assets('blog/')}>Blog</a>
+        <a class="chip" href="#about">About</a>
+        <a class="btn" href="https://github.com/your-username" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </nav>
+
+    <section id="home" class="hero" role="region" aria-label="Hero">
+      <div class="left">
+        <h1>BUILDING THE UNIVERSE,<br/>ONE THOUGHT AT A TIME</h1>
+        <p class="kicker">{SITE_DESC}</p>
+        <div class="cta">
+          <a class="btn primary" href={assets('blog/')}>Read Essays</a>
+          <a class="btn" href="#about">About Me</a>
+        </div>
+      </div>
+
+      <div class="right">
+        <div class="panel">
+          <h3>Recent Posts</h3>
+          <ul class="recent" aria-label="Recent posts">
+            {recent.map((p) => {
+              // 生成 slug（用文件名）
+              const slug = p.file.split('/').pop().replace(/\.md$/, '');
+              const url = assets(`blog/${slug}/`);
+              return (
+                <li>
+                  <span class="title">{p.frontmatter.title}</span>
+                  <a class="meta" href={url}>
+                    {new Date(p.frontmatter.date).toLocaleDateString('en-US', {year:'numeric', month:'short', day:'2-digit'})}
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+
+        <div class="panel">
+          <h3>Follow</h3>
+          <p class="meta">Connect with me:</p>
+          <div class="cta">
+            <a class="btn" href="https://github.com/your-username" target="_blank" rel="noopener">GitHub</a>
+            <a class="btn" href="mailto:you@example.com">Email</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="about" class="sections">
+      <article class="card">
+        <h2>About · {AUTHOR_NAME}</h2>
+        <div class="post">
+          <div class="thumb-wide" aria-hidden="true"></div>
+          <div>
+            <h3 style="margin:0 0 6px">{AUTHOR_NAME}</h3>
+            <p class="meta">{AUTHOR_BIO}</p>
+          </div>
+        </div>
+      </article>
+      <aside class="card">
+        <h2>Links</h2>
+        <p class="meta">RSS、Sitemap、源代码：</p>
+        <div class="cta" style="margin-top:10px">
+          <a class="btn" href={assets('rss.xml')}>RSS</a>
+          <a class="btn" href={assets('sitemap.xml')}>Sitemap</a>
+          <a class="btn" href="https://github.com/your-username/your-repo" target="_blank" rel="noopener">GitHub Repo</a>
+        </div>
+      </aside>
+    </section>
+
+    <footer>
+      <span>© 2025 • {SITE_TITLE}</span>
+      <span>• • •</span>
+    </footer>
+  </div>
+</body>
+</html>

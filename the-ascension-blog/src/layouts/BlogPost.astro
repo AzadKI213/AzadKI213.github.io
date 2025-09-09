@@ -1,0 +1,52 @@
+---
+const { frontmatter, Content } = Astro.props;
+const { title, date, description, tags = [], cover } = frontmatter ?? {};
+const fmt = (d) => new Date(d).toLocaleDateString('en-US', {year:'numeric', month:'short', day:'2-digit'});
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>{title} · The Ascension</title>
+    <meta name="description" content={description || 'Article'} />
+    <link rel="icon" href={`${Astro.site?.pathname || '/'}favicon.svg`} />
+    <link rel="stylesheet" href={`${Astro.site?.pathname || '/'}src/styles/global.css`.replace('//','/')} />
+    <!-- OG -->
+    <meta property="og:title" content={`${title} · The Ascension`} />
+    <meta property="og:description" content={description || ''} />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content={new URL(Astro.request.url, Astro.site ?? 'http://localhost/').toString()} />
+    {cover && <meta property="og:image" content={cover} />}
+  </head>
+  <body>
+    <div class="container">
+      <nav class="nav">
+        <a class="brand" href={`${Astro.site?.pathname || '/'}`}>
+          <svg viewBox="0 0 64 64" aria-hidden="true">
+            <defs><linearGradient id="lg" x1="0" x2="1"><stop stop-color="#86b6ff"/><stop offset="1" stop-color="#d5b3ff"/></linearGradient></defs>
+            <path d="M8 40 L32 12 L56 40" fill="none" stroke="url(#lg)" stroke-width="3"/>
+            <path d="M20 40 L32 26 L44 40" fill="none" stroke="url(#lg)" stroke-width="3"/>
+          </svg>
+          <span>THE ASCENSION</span>
+        </a>
+        <div class="menu">
+          <a class="chip" href={`${Astro.site?.pathname || '/'}#home`}>Home</a>
+          <a class="chip" href={`${Astro.site?.pathname || '/'}blog/`}>Blog</a>
+          <a class="chip" href={`${Astro.site?.pathname || '/'}#about`}>About</a>
+        </div>
+      </nav>
+
+      <article class="card">
+        <header>
+          <h1 style="margin:.2rem 0 0">{title}</h1>
+          <p class="meta">{fmt(date)} · {tags.join(', ')}</p>
+          {cover && <img src={cover} alt={title} style="width:100%;border-radius:12px;border:1px solid var(--stroke);margin:10px 0" />}
+          {description && <p class="kicker">{description}</p>}
+        </header>
+        <Content />
+      </article>
+    </div>
+  </body>
+</html>
