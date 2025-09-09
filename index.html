@@ -1,1 +1,247 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Context Engineering — CE is the future</title>
+  <meta name="description" content="一页式整理：Context Engineering（上下文工程）核心资源与要点，含概念、实战、反思、综述、视频、经验与开源仓库。" />
+  <meta name="theme-color" content="#111827" />
+  <meta property="og:title" content="Context Engineering — CE is the future" />
+  <meta property="og:description" content="CE 关键资源精选：概念模型、Agent 实战、失败模式与修复、长综述、外循环视频、企业经验、实践技巧与仓库。" />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://dummyimage.com/1200x630/111827/ffffff&text=Context+Engineering" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3ECE%3C/text%3E%3C/svg%3E" />
+  <style>
+    :root{
+      --bg:#0b0f19; --fg:#e5e7eb; --muted:#9ca3af; --brand:#7c3aed; --card:#111827; --stroke:#1f2937; --chip:#1f2937; --chip-on:#c084fc; --link:#a78bfa;
+      --shadow:0 10px 30px rgba(0,0,0,.25);
+    }
+    :root.light{ --bg:#f9fafb; --fg:#0f172a; --muted:#475569; --brand:#6d28d9; --card:#ffffff; --stroke:#e5e7eb; --chip:#eef2ff; --chip-on:#5b21b6; --link:#4f46e5; --shadow:0 8px 24px rgba(0,0,0,.08); }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,'Noto Sans','PingFang SC','Hiragino Sans GB','Microsoft Yahei',sans-serif;background:var(--bg);color:var(--fg);}
+    .container{max-width:1100px;margin-inline:auto;padding:32px 20px 60px}
+    header{display:flex;gap:16px;align-items:center;justify-content:space-between;margin-bottom:18px}
+    .title{font-weight:800;letter-spacing:.2px;line-height:1.1;font-size:clamp(22px,3.2vw,34px)}
+    .subtitle{color:var(--muted);font-size:14px;margin-top:6px}
+    .actions{display:flex;gap:10px}
+    button, .chip{border:1px solid var(--stroke);background:var(--card);color:var(--fg);padding:8px 12px;border-radius:12px;cursor:pointer}
+    button:hover{border-color:var(--link)}
+    .searchbar{display:flex;gap:10px;align-items:center;background:var(--card);border:1px solid var(--stroke);border-radius:16px;padding:10px 12px;margin:14px 0;box-shadow:var(--shadow)}
+    .searchbar input{flex:1;background:transparent;border:0;outline:0;color:var(--fg);font-size:15px}
+    .chips{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 18px}
+    .chip{font-size:12px;background:var(--chip)}
+    .chip[data-active="true"]{background:var(--brand);border-color:transparent;color:white}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+    .card{border:1px solid var(--stroke);border-radius:16px;background:var(--card);padding:16px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px}
+    .badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+    .badge .dot{width:8px;height:8px;border-radius:50%;background:var(--brand)}
+    .card h3{margin:0;font-size:18px}
+    .card p{margin:2px 0 0;color:var(--muted)}
+    .meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+    .tag{font-size:11px;padding:3px 8px;border-radius:999px;border:1px dashed var(--stroke);color:var(--muted)}
+    .linkrow{margin-top:auto;display:flex;gap:10px;align-items:center}
+    a.btn{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:12px;border:1px solid var(--stroke);text-decoration:none;color:var(--link)}
+    a.btn:hover{border-color:var(--link)}
+    .muted{color:var(--muted)}
+    footer{margin-top:26px;color:var(--muted);font-size:13px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+    .sep{opacity:.35}
+  </style>
+  <script>
+    // Light/Dark theme toggle with persistence
+    const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+    function applyTheme(t){document.documentElement.classList.toggle('light', t==='light');localStorage.setItem('theme', t)}
+    function initTheme(){const t=localStorage.getItem('theme')|| (prefersLight ? 'light':'dark');applyTheme(t)}
+    document.addEventListener('DOMContentLoaded', initTheme);
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "Context Engineering — CE is the future",
+    "about": "精选 CE 资源与实践",
+    "hasPart": [
+      {"@type":"CreativeWork","name":"The New Skill in AI is Not Prompting, It's Context Engineering","author":"Philipp Schmid","publisher":"Google DeepMind","inLanguage":"en"},
+      {"@type":"CreativeWork","name":"Context Engineering for Agents","author":"Harrison Chase","publisher":"LangChain","inLanguage":"en"},
+      {"@type":"CreativeWork","name":"How Contexts Fail—and How to Fix Them","author":"Drew Breunig","inLanguage":"en"},
+      {"@type":"CreativeWork","name":"A Survey of Context Engineering","inLanguage":"en"},
+      {"@type":"VideoObject","name":"Context Engineering: The Outer Loop","author":"Hammad Bashir","publisher":"Chroma","inLanguage":"en"},
+      {"@type":"CreativeWork","name":"AI 代理的上下文工程：构建 Manus 的经验教训","author":"季逸超","inLanguage":"zh"},
+      {"@type":"CreativeWork","name":"Practical tips on building LLM agents","author":"Paras Chopra","inLanguage":"en"},
+      {"@type":"SoftwareSourceCode","name":"Context-Engineering","author":"davidkimai","programmingLanguage":"Markdown"}
+    ]
+  }
+  </script>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <div class="title">Context Engineering — CE is the future</div>
+        <div class="subtitle">精选 8 篇高价值资源：概念模型、Agent 实战、失败模式修复、长综述、外循环视频、企业实战、落地技巧与开源仓库。</div>
+      </div>
+      <div class="actions">
+        <button id="themeBtn" title="切换明暗">🌓 主题</button>
+        <button id="shareBtn" title="复制页面链接">🔗 分享</button>
+      </div>
+    </header>
+
+    <div class="searchbar">
+      <span class="muted">🔎</span>
+      <input id="q" placeholder="搜索标题/描述/作者…" aria-label="搜索" />
+    </div>
+
+    <div class="chips" id="chips"></div>
+
+    <section class="grid" id="grid" aria-live="polite"></section>
+
+    <footer>
+      <div>由 <span class="sep">·</span> Context Engineering 资源清单 <span class="sep">·</span> 构建</div>
+      <div id="updated" class="muted"></div>
+    </footer>
+  </div>
+
+  <script>
+    const items = [
+      {
+        id:1,
+        title:"The New Skill in Al is Not Prompting, It's Context Engineering",
+        source:"Google DeepMind / Philipp Schmid",
+        summary:"偏概念介绍，提出“六层上下文”模型（指令、历史、长记忆、RAG、工具、输出格式），业内首次系统定义 CE，入门级资料。",
+        tags:["概念","六层模型","入门"],
+        type:"Concept",
+        url:"#"
+      },
+      {
+        id:2,
+        title:"Context Engineering for Agents",
+        source:"LangChain / Harrison Chase",
+        summary:"偏实践的 Agent 构建方法论，结合 LangChain 生态，给出可落地流程与代码。",
+        tags:["实践","Agent","LangChain"],
+        type:"Practice",
+        url:"#"
+      },
+      {
+        id:3,
+        title:"How Contexts Fail—and How to Fix Them",
+        source:"Drew Breunig",
+        summary:"反面教材 + 对策清单：澄清“长上下文≠高质量”。总结四大死法：Poisoning / Distraction / Confusion / Clash。",
+        tags:["反面教材","诊断","对策"],
+        type:"Guide",
+        url:"#"
+      },
+      {
+        id:4,
+        title:"A Survey of Context Engineering",
+        source:"Survey",
+        summary:"160+ 页的长综述，当前最全面的参考之一，帮助建立宏观知识框架与未来方向。",
+        tags:["综述","研究","长文"],
+        type:"Survey",
+        url:"#"
+      },
+      {
+        id:5,
+        title:"Context Engineering: The Outer Loop",
+        source:"Chroma / Hammad Bashir（YouTube）",
+        summary:"30 分钟演示如何用向量数据库做外循环动态上下文。",
+        tags:["视频","向量数据库","外循环"],
+        type:"Video",
+        url:"#"
+      },
+      {
+        id:6,
+        title:"AI 代理的上下文工程：构建 Manus 的经验教训",
+        source:"季逸超 / Manus",
+        summary:"企业级实战经验：KV-cache 命中率、工具遮蔽等工程坑点与经验。",
+        tags:["企业实践","经验教训","工程"],
+        type:"Case",
+        url:"#"
+      },
+      {
+        id:7,
+        title:"Practical tips on building LLM agents",
+        source:"Paras Chopra / Lossfunk",
+        summary:"12 条一线 Agent 落地心得，涵盖指标与成本考量，产品经理/创业者友好。",
+        tags:["Tips","Agent","产品"],
+        type:"Tips",
+        url:"#"
+      },
+      {
+        id:8,
+        title:"Context-Engineering（GitHub Repo）",
+        source:"davidkimai（★4.1k）",
+        summary:"被广泛认可的社区仓库：学习路径、可操作模板、进阶示例、上下文协议与代理系统。",
+        tags:["Repo","开源","模板"],
+        type:"Repo",
+        url:"#"
+      }
+    ];
+
+    const chipDefs = [
+      {id:'All', label:'全部'},
+      {id:'Concept', label:'概念'},
+      {id:'Practice', label:'实践'},
+      {id:'Guide', label:'反面教材'},
+      {id:'Survey', label:'综述'},
+      {id:'Video', label:'视频'},
+      {id:'Case', label:'企业实践'},
+      {id:'Tips', label:'技巧'},
+      {id:'Repo', label:'仓库'}
+    ];
+
+    const grid = document.getElementById('grid');
+    const q = document.getElementById('q');
+    const chips = document.getElementById('chips');
+    const updated = document.getElementById('updated');
+
+    // Render chips
+    let active = 'All';
+    chipDefs.forEach(c=>{
+      const el = document.createElement('button');
+      el.className='chip'; el.textContent=c.label; el.dataset.id=c.id; el.dataset.active = c.id===active;
+      el.addEventListener('click',()=>{active=c.id;[...chips.children].forEach(x=>x.dataset.active=false);el.dataset.active=true;render()});
+      chips.appendChild(el);
+    });
+
+    function render(){
+      const keyword = q.value.trim().toLowerCase();
+      grid.innerHTML = '';
+      items.filter(it=>{
+        const inType = (active==='All' || it.type===active);
+        const inText = !keyword || [it.title,it.source,it.summary,(it.tags||[]).join(' ')].join(' ').toLowerCase().includes(keyword);
+        return inType && inText;
+      }).forEach(it=>{
+        const card = document.createElement('article');
+        card.className='card';
+        card.innerHTML = `
+          <div class="badge"><span class="dot"></span><span>${it.source}</span></div>
+          <h3>${it.title}</h3>
+          <p>${it.summary}</p>
+          <div class="meta">${(it.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+          <div class="linkrow">
+            <a class="btn" href="${it.url}" target="_blank" rel="noopener noreferrer">打开链接</a>
+            <span class="muted">类型：${it.type}</span>
+          </div>`;
+        grid.appendChild(card);
+      });
+    }
+
+    q.addEventListener('input', render);
+    render();
+
+    // Theme & share
+    document.getElementById('themeBtn').addEventListener('click',()=>{
+      const isLight = document.documentElement.classList.toggle('light');
+      localStorage.setItem('theme', isLight? 'light':'dark');
+    });
+    document.getElementById('shareBtn').addEventListener('click', async ()=>{
+      const url = location.href;
+      try{ await navigator.clipboard.writeText(url); alert('链接已复制：\n'+url);}catch{ prompt('复制失败，请手动复制：', url); }
+    });
+
+    // Updated time
+    updated.textContent = '最后更新：' + new Date().toISOString().slice(0,10);
+  </script>
+</body>
+</html>
 
