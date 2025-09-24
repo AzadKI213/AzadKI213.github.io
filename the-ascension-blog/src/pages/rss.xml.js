@@ -1,12 +1,23 @@
 export const prerender = true;
 
-const siteUrl = (Astro.site ?? new URL('http://localhost/')).toString();
+const modules = import.meta.glob('../content/blog/**/*.md');
 
-export async function GET() {
-  const all = await Astro.glob('../content/blog/**/*.md');
-  const posts = all
-    .filter(p => p.frontmatter?.draft !== true)
-    .sort((a,b) => new Date(b.frontmatter.date) - new Date(a.frontmatter.date));
+async function loadPosts() {
+  const entries = await Promise.all(
+    Object.entries(modules).map(async ([path, loader]) => {
+      const mod = await loader();
+      return { ...mod, file: path };
+    })
+  );
+
+  return entries
+    .filter((entry) => entry.frontmatter?.draft !== true)
+    .sort((a, b) => new Date(b.frontmatter.date) - new Date(a.frontmatter.date));
+}
+
+export async function GET({ site }) {
+  const siteUrl = (site ?? new URL('http://localhost/')).toString();
+  const posts = await loadPosts();
 
   const items = posts.map((p) => {
     const slug = p.file.split('/').pop().replace(/\.md$/, '');
@@ -24,9 +35,9 @@ export async function GET() {
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
 <channel>
-  <title>The Ascension</title>
+  <title>Frost Journal</title>
   <link>${siteUrl}</link>
-  <description>A journey through technology, consciousness, and the cosmic dance.</description>
+  <description>Quiet essays about deliberate work, useful tools, and building with intention.</description>
   ${items}
 </channel>
 </rss>`;

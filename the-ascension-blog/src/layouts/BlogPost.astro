@@ -1,7 +1,12 @@
 ---
 const { frontmatter, Content } = Astro.props;
+const hasSlot = Astro.slots.has('default');
 const { title, date, description, tags = [], cover } = frontmatter ?? {};
-const fmt = (d) => new Date(d).toLocaleDateString('en-US', {year:'numeric', month:'short', day:'2-digit'});
+const fmt = (d) => new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: '2-digit' });
+
+const SITE_TITLE = 'Frost Journal';
+const base = Astro.site?.pathname || '/';
+const assets = (p) => `${base}${p}`.replace('//', '/');
 ---
 
 <!doctype html>
@@ -9,12 +14,11 @@ const fmt = (d) => new Date(d).toLocaleDateString('en-US', {year:'numeric', mont
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>{title} · The Ascension</title>
+    <title>{title} · {SITE_TITLE}</title>
     <meta name="description" content={description || 'Article'} />
-    <link rel="icon" href={`${Astro.site?.pathname || '/'}favicon.svg`} />
-    <link rel="stylesheet" href={`${Astro.site?.pathname || '/'}src/styles/global.css`.replace('//','/')} />
-    <!-- OG -->
-    <meta property="og:title" content={`${title} · The Ascension`} />
+    <link rel="icon" href={assets('favicon.svg')} />
+    <link rel="stylesheet" href={assets('src/styles/global.css')} />
+    <meta property="og:title" content={`${title} · ${SITE_TITLE}`} />
     <meta property="og:description" content={description || ''} />
     <meta property="og:type" content="article" />
     <meta property="og:url" content={new URL(Astro.request.url, Astro.site ?? 'http://localhost/').toString()} />
@@ -22,31 +26,50 @@ const fmt = (d) => new Date(d).toLocaleDateString('en-US', {year:'numeric', mont
   </head>
   <body>
     <div class="container">
-      <nav class="nav">
-        <a class="brand" href={`${Astro.site?.pathname || '/'}`}>
-          <svg viewBox="0 0 64 64" aria-hidden="true">
-            <defs><linearGradient id="lg" x1="0" x2="1"><stop stop-color="#86b6ff"/><stop offset="1" stop-color="#d5b3ff"/></linearGradient></defs>
-            <path d="M8 40 L32 12 L56 40" fill="none" stroke="url(#lg)" stroke-width="3"/>
-            <path d="M20 40 L32 26 L44 40" fill="none" stroke="url(#lg)" stroke-width="3"/>
+      <nav class="nav" aria-label="Primary">
+        <a class="brand" href={assets('')}>
+          <svg viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+            <defs>
+              <linearGradient id="aurora" x1="0" x2="1">
+                <stop offset="0%" stop-color="#4b6fae" />
+                <stop offset="100%" stop-color="#7aa6d9" />
+              </linearGradient>
+            </defs>
+            <rect x="10" y="18" width="44" height="28" rx="14" fill="none" stroke="url(#aurora)" stroke-width="3" />
+            <path d="M16 32 L32 22 L48 32" fill="none" stroke="url(#aurora)" stroke-width="3" stroke-linecap="round" />
           </svg>
-          <span>THE ASCENSION</span>
+          <span>{SITE_TITLE.toUpperCase()}</span>
         </a>
         <div class="menu">
-          <a class="chip" href={`${Astro.site?.pathname || '/'}#home`}>Home</a>
-          <a class="chip" href={`${Astro.site?.pathname || '/'}blog/`}>Blog</a>
-          <a class="chip" href={`${Astro.site?.pathname || '/'}#about`}>About</a>
+          <a class="chip" href={assets('#writing')}>Writing</a>
+          <a class="chip" href={assets('#about')}>About</a>
+          <a class="chip" href={assets('#workflow')}>Workflow</a>
+          <a class="chip" href={assets('blog/')}>Archive</a>
         </div>
       </nav>
 
-      <article class="card">
-        <header>
-          <h1 style="margin:.2rem 0 0">{title}</h1>
-          <p class="meta">{fmt(date)} · {tags.join(', ')}</p>
-          {cover && <img src={cover} alt={title} style="width:100%;border-radius:12px;border:1px solid var(--stroke);margin:10px 0" />}
+      <main class="card reading">
+        <header class="post-header">
+          <p class="eyebrow">Published {fmt(date)}</p>
+          <h1 style="margin:0;font-size:clamp(28px,4vw,44px);">{title}</h1>
           {description && <p class="kicker">{description}</p>}
+          {tags.length > 0 && (
+            <ul class="tag-list">
+              {tags.map((tag) => <li>{tag}</li>)}
+            </ul>
+          )}
+          {cover && <img src={cover} alt={title} style="width:100%;border-radius:16px;border:1px solid var(--stroke);margin-top:8px;" />}
         </header>
-        <Content />
-      </article>
+
+        <div class="post-body">
+          {hasSlot ? <slot /> : (Content && <Content />)}
+        </div>
+      </main>
+
+      <footer>
+        <span>© {new Date().getFullYear()} {SITE_TITLE}</span>
+        <a class="text-link" href={assets('')}>Back to home →</a>
+      </footer>
     </div>
   </body>
 </html>

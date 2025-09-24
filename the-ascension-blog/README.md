@@ -1,64 +1,56 @@
-# The Ascension — Astro Blog
+# Frost Journal
 
-- **SITE_TITLE**: The Ascension  
-- **SITE_DESC**: A journey through technology, consciousness, and the cosmic dance.  
-- **AUTHOR_NAME**: Kyrie  
-- **AUTHOR_BIO**: AI 产品经理 / Context Engineering 爱好者  
-- **托管**: GitHub Pages（用户站点或项目站点）  
+A calm, minimal Astro theme for personal blogging. Content lives in Markdown files, the design leans into pale blues and soft typography, and everything deploys easily to GitHub Pages.
 
-## 本地开发
+## Features
+
+- **Cold, minimalist aesthetic** built with native CSS variables.
+- **Markdown-based writing** stored under `src/content/blog/`.
+- **Draft-aware listing** — use `draft: true` in front matter to hide posts.
+- **RSS & sitemap** generated automatically.
+- **Ready for GitHub Pages** with dynamic `base` path handling.
+
+## Getting started
+
 ```bash
-npm i
+npm install
 npm run dev
-# 打开 http://localhost:4321
+# → http://localhost:4321
 ```
 
-## 写作（命令行创建文章）
+Update `astro.config.mjs` with your final domain if it differs from `https://azadki213.github.io/`.
+
+## Publishing a new post
+
+Use the helper script to scaffold front matter and filenames:
+
 ```bash
-npm run new "My first post" --tags="Agent,CE" --draft
+npm run new "Title of the Post" --tags="Notes,Build" --draft
 ```
-- 会在 `src/content/blog/` 生成 Markdown 文件（带 frontmatter）。
-- 默认 `draft: true`（如果不带 `--draft` 则为 `false`）。
 
-**草稿显示**  
-- 站点默认不展示草稿。  
-- 本地开发可通过 URL 加 `?drafts=1` 强制显示草稿。
+- Files are created in `src/content/blog/`.
+- Remove `--draft` (or edit the front matter) when the post is ready for the public archive.
+- Run `npm run dev` to preview the article locally.
 
-## 构建
+When you're happy with the changes:
+
 ```bash
 npm run build
-npm run preview
+npm run preview  # optional smoke check
 ```
 
-## 部署到 GitHub Pages
-1. Push 到 GitHub 仓库的 `main` 分支。  
-2. 仓库 -> Settings -> Pages -> 构建来源选 **GitHub Actions**。  
-3. 工作流 `.github/workflows/astro.yml` 会自动构建并发布。  
-4. 自动识别用户站点 / 项目站点：  
-   - 仓库名以 `.github.io` 结尾 → `base = '/'`  
-   - 否则 → `base = '/<仓库名>'`
+Commit the updates and push to `main`. GitHub Pages will build and publish automatically via the existing workflow.
 
-## 文章 Frontmatter
-```yaml
----
-title: "Post Title"
-date: "YYYY-MM-DD"
-description: "One sentence summary."
-tags: ["Agent","CE"]
-cover: "/cover/example.jpg" # 可留空
-draft: false
----
-```
+## Customising the site
 
-## 路由
-- 首页 `/`：头像、简介、社交链接、**近期 5 篇文章**  
-- 文章列表 `/blog/`：分页（默认 12/页）  
-- 文章详情 `/blog/<slug>/`  
-- RSS `/rss.xml`  
-- Sitemap `/sitemap.xml`  
-- 404 `/404`
+- Edit `src/pages/index.astro` to change the hero copy, contact links, or the “About” section.
+- Modify `src/styles/global.css` for colour tweaks or spacing adjustments.
+- Replace `public/favicon.svg` with your own monogram or icon.
+- Add images to `public/` and reference them from post front matter using the `cover` field.
 
-## 注意
-- 不使用外链字体/CDN，样式统一在 `src/styles/global.css`。  
-- Pages **用户站点** URL: `https://<username>.github.io/`  
-- Pages **项目站点** URL: `https://<username>.github.io/<repo>/`
+## Deployment notes
+
+- The project assumes a user site at `https://<username>.github.io/`. If you deploy to a project site, set `BASE_PATH` in the GitHub Actions workflow so internal links resolve correctly.
+- Absolute URLs in the RSS feed and sitemap pull from `astro.config.mjs`. Keep `SITE_URL` in sync with your production domain for accurate metadata.
+
+Enjoy the quiet space and make it your own.

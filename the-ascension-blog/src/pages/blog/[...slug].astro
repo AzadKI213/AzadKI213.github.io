@@ -2,37 +2,67 @@
 import '../../styles/global.css';
 import BlogPost from '../../layouts/BlogPost.astro';
 
-// 加载 & 排序所有文章
-const all = await Astro.glob('../../content/blog/**/*.md');
-const posts = all.sort((a,b) => new Date(b.frontmatter.date) - new Date(a.frontmatter.date));
+export async function getStaticPaths() {
+  const all = await Astro.glob('../../content/blog/**/*.md');
+  const posts = all
+    .filter((p) => p.frontmatter?.draft !== true)
+    .sort((a, b) => new Date(b.frontmatter.date) - new Date(a.frontmatter.date));
 
-// slug 由文件名决定
-const pathSlug = Astro.params.slug?.join('/') ?? '';
-const post = posts.find(p => p.file.split('/').pop().replace(/\.md$/, '') === pathSlug);
-
-if (!post) {
-  return Astro.redirect((Astro.site?.pathname || '/') + '404');
+  return posts.map((post) => {
+    const slug = post.file.split('/').pop().replace(/\.md$/, '');
+    return { params: { slug } };
+  });
 }
 
-// 生成上一篇/下一篇
-const idx = posts.findIndex(p => p === post);
-const prev = posts[idx - 1];
-const next = posts[idx + 1];
+const modules = import.meta.glob('../../content/blog/**/*.md');
+
+async function loadPosts() {
+  const entries = await Promise.all(
+    Object.entries(modules).map(async ([path, loader]) => {
+      const mod = await loader();
+      return { ...mod, file: path };
+    })
+  );
+
+  return entries
+    .filter((entry) => entry.frontmatter?.draft !== true)
+    .sort((a, b) => new Date(b.frontmatter.date) - new Date(a.frontmatter.date));
+}
 
 const base = Astro.site?.pathname || '/';
-const link = (p) => `${base}${p}`.replace('//','/');
+const link = (p) => `${base}${p}`.replace('//', '/');
+
+const posts = await loadPosts();
+
+const slugParam = Astro.params.slug;
+const pathSlug = Array.isArray(slugParam) ? slugParam.join('/') : slugParam ?? '';
+const post = posts.find((p) => p.file.split('/').pop().replace(/\.md$/, '') === pathSlug);
+
+if (!post?.Content) {
+  return Astro.redirect(link('404'));
+}
+
+const { Content, frontmatter = {} } = post;
+
+const idx = posts.findIndex((p) => p === post);
+const prev = posts[idx - 1]
+  ? { title: posts[idx - 1].frontmatter.title, slug: posts[idx - 1].file.split('/').pop().replace(/\.md$/, '') }
+  : null;
+const next = posts[idx + 1]
+  ? { title: posts[idx + 1].frontmatter.title, slug: posts[idx + 1].file.split('/').pop().replace(/\.md$/, '') }
+  : null;
 ---
 
 ---
-<BlogPost frontmatter={post.frontmatter}>
-  <post.Content />
-  <hr style="border:none;border-top:1px dashed var(--stroke);margin:20px 0" />
-  <div class="cta" style="justify-content:space-between">
-    <div>
-      {prev && <a class="btn" href={link(`blog/${prev.file.split('/').pop().replace(/\.md$/, '')}/`)}>← {prev.frontmatter.title}</a>}
-    </div>
-    <div>
-      {next && <a class="btn" href={link(`blog/${next.file.split('/').pop().replace(/\.md$/, '')}/`)}>{next.frontmatter.title} →</a>}
-    </div>
+<BlogPost frontmatter={frontmatter}>
+  <Content />
+  <hr style="border:none;border-top:1px solid var(--divider);margin:24px 0" />
+  <div class="pagination" style="margin-top:0;">
+    {prev
+      ? <a class="text-link" href={link(`blog/${prev.slug}/`)}>← {prev.title}</a>
+      : <span class="meta">Start of the archive</span>}
+    {next
+      ? <a class="text-link" href={link(`blog/${next.slug}/`)}>{next.title} →</a>
+      : <span class="meta">You're reading the latest entry</span>}
   </div>
 </BlogPost>

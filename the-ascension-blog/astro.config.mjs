@@ -5,7 +5,7 @@ import { defineConfig } from 'astro/config';
 const base = process.env.BASE_PATH || '/';
 
 export default defineConfig({
-  site: process.env.SITE_URL || 'https://your-username.github.io/your-repo/',
+  site: process.env.SITE_URL || 'https://azadki213.github.io/',
   base,
   server: { port: 4321 },
   integrations: [],

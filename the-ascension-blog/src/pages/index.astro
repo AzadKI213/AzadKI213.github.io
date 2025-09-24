@@ -1,25 +1,27 @@
 ---
 import '../styles/global.css';
 
-// 加载所有文章（不依赖 content collections）
 const all = await Astro.glob('../content/blog/**/*.md');
-
-// 过滤草稿：默认不显示；开发时允许 ?drafts=1
 const showDrafts = Astro.request.url.includes('drafts=1');
 const posts = all
-  .filter(p => showDrafts ? true : p.frontmatter?.draft !== true)
-  .sort((a,b) => new Date(b.frontmatter.date) - new Date(a.frontmatter.date));
+  .filter((p) => (showDrafts ? true : p.frontmatter?.draft !== true))
+  .sort((a, b) => new Date(b.frontmatter.date) - new Date(a.frontmatter.date));
 
-const recent = posts.slice(0,5);
+const recent = posts.slice(0, 4);
+const featured = recent[0];
+const formatDate = (d) => new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: '2-digit' });
 
-// 站点信息
-const SITE_TITLE = 'The Ascension';
-const SITE_DESC = 'A journey through technology, consciousness, and the cosmic dance.';
-const AUTHOR_NAME = 'Kyrie';
-const AUTHOR_BIO = 'AI 产品经理 / Context Engineering 爱好者';
+const SITE_TITLE = 'Frost Journal';
+const SITE_DESC = 'Quiet essays about deliberate work, useful tools, and building with intention.';
+const AUTHOR_NAME = 'Azad KI';
+const AUTHOR_BIO = 'Product-minded maker documenting calm workflows, prototypes, and lessons learned.';
+
+const CONTACT_EMAIL = 'you@example.com';
+const GITHUB_URL = 'https://github.com/AzadKI213';
 
 const base = Astro.site?.pathname || '/';
-const assets = (p) => `${base}${p}`.replace('//','/');
+const assets = (p) => `${base}${p}`.replace('//', '/');
+const archiveUrl = assets('blog/');
 ---
 
 <!doctype html>
@@ -31,7 +33,6 @@ const assets = (p) => `${base}${p}`.replace('//','/');
   <meta name="description" content={SITE_DESC} />
   <link rel="icon" href={assets('favicon.svg')} />
   <link rel="stylesheet" href={assets('src/styles/global.css')} />
-  <!-- OG -->
   <meta property="og:title" content={SITE_TITLE} />
   <meta property="og:description" content={SITE_DESC} />
   <meta property="og:type" content="website" />
@@ -41,87 +42,106 @@ const assets = (p) => `${base}${p}`.replace('//','/');
   <div class="container">
     <nav class="nav" aria-label="Primary">
       <a class="brand" href={assets('')}>
-        <svg viewBox="0 0 64 64" aria-hidden="true">
-          <defs><linearGradient id="lg" x1="0" x2="1"><stop stop-color="#86b6ff"/><stop offset="1" stop-color="#d5b3ff"/></linearGradient></defs>
-          <path d="M8 40 L32 12 L56 40" fill="none" stroke="url(#lg)" stroke-width="3"/>
-          <path d="M20 40 L32 26 L44 40" fill="none" stroke="url(#lg)" stroke-width="3"/>
+        <svg viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+          <defs>
+            <linearGradient id="aurora" x1="0" x2="1">
+              <stop offset="0%" stop-color="#4b6fae" />
+              <stop offset="100%" stop-color="#7aa6d9" />
+            </linearGradient>
+          </defs>
+          <rect x="10" y="18" width="44" height="28" rx="14" fill="none" stroke="url(#aurora)" stroke-width="3" />
+          <path d="M16 32 L32 22 L48 32" fill="none" stroke="url(#aurora)" stroke-width="3" stroke-linecap="round" />
         </svg>
-        <span>THE ASCENSION</span>
+        <span>{SITE_TITLE.toUpperCase()}</span>
       </a>
       <div class="menu">
-        <a class="chip" href="#home">Home</a>
-        <a class="chip" href={assets('blog/')}>Blog</a>
+        <a class="chip" href="#writing">Writing</a>
         <a class="chip" href="#about">About</a>
-        <a class="btn" href="https://github.com/your-username" target="_blank" rel="noopener">GitHub</a>
+        <a class="chip" href="#workflow">Workflow</a>
+        <a class="chip" href={archiveUrl}>Archive</a>
       </div>
     </nav>
 
-    <section id="home" class="hero" role="region" aria-label="Hero">
-      <div class="left">
-        <h1>BUILDING THE UNIVERSE,<br/>ONE THOUGHT AT A TIME</h1>
+    <section id="writing" class="hero" role="region" aria-label="Featured writing">
+      <div class="hero-copy">
+        <p class="eyebrow">Personal blog</p>
+        <h1>Quiet notes for people who build with care.</h1>
         <p class="kicker">{SITE_DESC}</p>
         <div class="cta">
-          <a class="btn primary" href={assets('blog/')}>Read Essays</a>
-          <a class="btn" href="#about">About Me</a>
+          {featured ? (
+            <a class="btn primary" href={assets(`blog/${featured.file.split('/').pop().replace(/\.md$/, '')}/`)}>Read the latest</a>
+          ) : (
+            <a class="btn primary" href={archiveUrl}>Browse posts</a>
+          )}
+          <a class="btn" href={archiveUrl}>View archive</a>
         </div>
       </div>
 
-      <div class="right">
+      <div class="hero-panels">
         <div class="panel">
-          <h3>Recent Posts</h3>
-          <ul class="recent" aria-label="Recent posts">
-            {recent.map((p) => {
-              // 生成 slug（用文件名）
-              const slug = p.file.split('/').pop().replace(/\.md$/, '');
-              const url = assets(`blog/${slug}/`);
-              return (
-                <li>
-                  <span class="title">{p.frontmatter.title}</span>
-                  <a class="meta" href={url}>
-                    {new Date(p.frontmatter.date).toLocaleDateString('en-US', {year:'numeric', month:'short', day:'2-digit'})}
-                  </a>
-                </li>
-              );
-            })}
-          </ul>
+          <h2>Latest writing</h2>
+          {recent.length === 0 ? (
+            <p class="meta">No posts yet — publish your first note to see it here.</p>
+          ) : (
+            <ul class="post-list" aria-label="Recent posts">
+              {recent.map((p) => {
+                const slug = p.file.split('/').pop().replace(/\.md$/, '');
+                const url = assets(`blog/${slug}/`);
+                return (
+                  <li>
+                    <a class="title" href={url}>{p.frontmatter.title}</a>
+                    <span class="meta">{formatDate(p.frontmatter.date)}</span>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+          <a class="text-link" href={archiveUrl}>Open the full archive →</a>
         </div>
 
         <div class="panel">
-          <h3>Follow</h3>
-          <p class="meta">Connect with me:</p>
+          <h2>Stay in touch</h2>
+          <p class="meta">Follow along or say hello.</p>
           <div class="cta">
-            <a class="btn" href="https://github.com/your-username" target="_blank" rel="noopener">GitHub</a>
-            <a class="btn" href="mailto:you@example.com">Email</a>
+            <a class="btn" href={GITHUB_URL} target="_blank" rel="noopener">GitHub</a>
+            <a class="btn" href={`mailto:${CONTACT_EMAIL}`}>Email</a>
+            <a class="btn" href={assets('rss.xml')}>RSS</a>
           </div>
         </div>
       </div>
     </section>
 
     <section id="about" class="sections">
-      <article class="card">
-        <h2>About · {AUTHOR_NAME}</h2>
-        <div class="post">
-          <div class="thumb-wide" aria-hidden="true"></div>
-          <div>
-            <h3 style="margin:0 0 6px">{AUTHOR_NAME}</h3>
-            <p class="meta">{AUTHOR_BIO}</p>
-          </div>
-        </div>
+      <article class="card highlight">
+        <h2>About {AUTHOR_NAME}</h2>
+        <p>{AUTHOR_BIO}</p>
+        <p class="meta">Currently writing from a calm, minimalist workspace — capturing the build logs as they happen.</p>
       </article>
-      <aside class="card">
-        <h2>Links</h2>
-        <p class="meta">RSS、Sitemap、源代码：</p>
-        <div class="cta" style="margin-top:10px">
-          <a class="btn" href={assets('rss.xml')}>RSS</a>
-          <a class="btn" href={assets('sitemap.xml')}>Sitemap</a>
-          <a class="btn" href="https://github.com/your-username/your-repo" target="_blank" rel="noopener">GitHub Repo</a>
-        </div>
-      </aside>
+
+      <article id="workflow" class="card">
+        <h2>Publishing workflow</h2>
+        <ol class="steps">
+          <li><strong>Install</strong>: <code>npm install</code> to set up dependencies.</li>
+          <li><strong>Draft</strong>: <code>npm run new "Title" --tags="Notes"</code> creates a Markdown file under <code>src/content/blog/</code>.</li>
+          <li><strong>Review</strong>: Run <code>npm run dev</code> and edit until it feels right.</li>
+          <li><strong>Publish</strong>: Commit the changes and push — GitHub Pages takes care of deployment.</li>
+        </ol>
+        <p class="meta">Every article is versioned, so you can trace edits or roll back without stress.</p>
+      </article>
+
+      <article class="card">
+        <h2>What you can expect</h2>
+        <ul class="plain-list">
+          <li>Thoughtful essays with a bias toward calm productivity.</li>
+          <li>Snapshots of prototypes, from small scripts to shipped features.</li>
+          <li>Curated links that keep the signal high and the noise low.</li>
+        </ul>
+      </article>
     </section>
 
     <footer>
-      <span>© 2025 • {SITE_TITLE}</span>
-      <span>• • •</span>
+      <span>© {new Date().getFullYear()} {SITE_TITLE}</span>
+      <span class="meta">Built with Astro · Deployed via GitHub Pages</span>
     </footer>
   </div>
 </body>

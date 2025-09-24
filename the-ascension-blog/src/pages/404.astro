@@ -3,6 +3,7 @@ import '../styles/global.css';
 Astro.response.status = 404;
 const base = Astro.site?.pathname || '/';
 const link = (p) => `${base}${p}`.replace('//','/');
+const SITE_TITLE = 'Frost Journal';
 ---
 
 <!doctype html>
@@ -10,19 +11,21 @@ const link = (p) => `${base}${p}`.replace('//','/');
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>404 · The Ascension</title>
+  <title>404 · {SITE_TITLE}</title>
   <link rel="icon" href={link('favicon.svg')} />
   <link rel="stylesheet" href={link('src/styles/global.css')} />
 </head>
 <body>
   <div class="container">
-    <section class="card">
-      <h2>404 — Lost in the clouds</h2>
-      <p class="meta">The page you seek is elsewhere.</p>
-      <div class="cta" style="margin-top:10px">
-        <a class="btn" href={link('')}>Back Home</a>
+    <main class="card" style="max-width:520px;margin:0 auto;align-items:flex-start;">
+      <p class="eyebrow">Not found</p>
+      <h1 style="margin:0 0 12px;font-size:2rem;">This page drifted off course.</h1>
+      <p class="meta">The link may be outdated or the entry was archived.</p>
+      <div class="cta" style="margin-top:18px;">
+        <a class="btn primary" href={link('')}>Go home</a>
+        <a class="btn" href={link('blog/')}>Open the archive</a>
       </div>
-    </section>
+    </main>
   </div>
 </body>
 </html>
